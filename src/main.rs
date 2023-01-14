@@ -1,10 +1,15 @@
+const ZERO_FLAG_BYTE_POSITION: u8 = 7;
+const SUBTRACT_FLAG_BYTE_POSITION: u8 = 6;
+const HALF_CARRY_FLAG_BYTE_POSITION: u8 = 5;
+const CARRY_FLAG_BYTE_POSITION: u8 = 4;
+
 struct Registers {
     a: u8,
     b: u8,
     c: u8,
     d: u8,
     e: u8,
-    f: u8,
+    f: FlagsRegister,
     g: u8,
     h: u8,
     l: u8,
@@ -18,10 +23,18 @@ struct FlagsRegister {
     carry: bool,
 }
 
-const ZERO_FLAG_BYTE_POSITION: u8 = 7;
-const SUBTRACT_FLAG_BYTE_POSITION: u8 = 6;
-const HALF_CARRY_FLAG_BYTE_POSITION: u8 = 5;
-const CARRY_FLAG_BYTE_POSITION: u8 = 4;
+enum Instruction {
+    ADD(ArithmeticTarget),
+}
+
+enum ArithmeticTarget {
+    A, B, C, D, E, H, L,
+}
+
+struct CPU {
+    registers: Registers,
+    pc: u16,
+}
 
 // Use std library function to convert between FlagsRegister and u8. Bit shifting based on
 // constants defined above
@@ -63,6 +76,40 @@ impl Registers {
     }
 
     //TODO: impl other virtual 16bit regs
+}
+
+impl CPU {
+    // TODO: Fill in rest of instructions / targets
+    fn execute(&mut self, instruction: Instruction) {
+        match instruction {
+            Instruction::ADD(target) => {
+                match target {
+                    ArithmeticTarget::A => {}
+                    ArithmeticTarget::B => {
+                        let value = self.registers.c;
+                        let new_value = self.add(value);
+                        self.registers.a = new_value;
+                    }
+                    ArithmeticTarget::C => {}
+                    ArithmeticTarget::D => {}
+                    ArithmeticTarget::E => {}
+                    ArithmeticTarget::H => {}
+                    ArithmeticTarget::L => {}
+                }
+            }
+        }
+    }
+
+    fn add(&mut self, value: u8) -> u8 {
+        let (new_value, did_overflow) = self.registers.a.overflowing_add(value);
+        //TODO: set flags
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.carry = did_overflow;
+        self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) > 0xF;
+
+        new_value
+    }
 }
 
 
