@@ -62,6 +62,7 @@ impl std::convert::From<u8> for FlagsRegister {
 }
 
 impl Registers { 
+    //af, bc, de, hl
     // Val of b bit shifted one byte right, OR with val of c to get u16 bc
     fn get_bc(&self) -> u16 {
         (self.b as u16) << 8
@@ -75,7 +76,23 @@ impl Registers {
         self.c = (value & 0xFF) as u8;
     }
 
-    //TODO: impl other virtual 16bit regs
+    fn get_de(&self) -> u16 {
+        (self.d as u16) << 8
+        | self.e as u16
+    }
+
+    fn set_hl(&mut self, value: u16) {
+        self.h = ((value & 0xFF00) >> 8) as u8;
+        self.l = (value & 0xFF) as u8;
+    }
+
+    fn get_hl(&self) -> u16 {
+        (self.h as u16) << 8
+        | self.l as u16
+    }
+
+
+    //TODO: implement af, need to convert f to u8 before it can be used (?) 
 }
 
 impl CPU {
